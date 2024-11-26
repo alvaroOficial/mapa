@@ -1,6 +1,4 @@
 import streamlit as st
-import osmnx as ox
-import networkx as nx
 import folium
 from streamlit_folium import st_folium
 
@@ -44,35 +42,13 @@ def mostrar_mapa_ventas():
         ).add_to(mapa)
     return mapa
 
-# Función para mostrar el mapa de rutas de distribución basadas en vías reales
+# Función para mostrar un mapa con una ruta simple (línea recta)
 def mostrar_mapa_rutas(origen, destino):
-    try:
-        G = ox.graph_from_place("Nariño, Colombia", network_type="drive")
-
-        # Encontrar los nodos más cercanos a las coordenadas de origen y destino
-        nodo_origen = ox.distance.nearest_nodes(G, origen[1], origen[0])
-        nodo_destino = ox.distance.nearest_nodes(G, destino[1], destino[0])
-
-        # Calcular la ruta más corta en función de la distancia
-        ruta = nx.shortest_path(G, nodo_origen, nodo_destino, weight='length')
-
-        # Obtener las coordenadas de la ruta
-        ruta_coords = [(G.nodes[n]['y'], G.nodes[n]['x']) for n in ruta]
-
-        # Crear el mapa de la ruta
-        mapa_ruta = folium.Map(location=origen, zoom_start=10)
-
-        # Dibujar la ruta sobre el mapa
-        folium.PolyLine(ruta_coords, color="blue", weight=2.5, opacity=1).add_to(mapa_ruta)
-
-        # Marcar los puntos de origen y destino
-        folium.Marker(origen, popup="Finca de Origen", icon=folium.Icon(color="green")).add_to(mapa_ruta)
-        folium.Marker(destino, popup="Destino", icon=folium.Icon(color="orange")).add_to(mapa_ruta)
-
-        return mapa_ruta
-    except Exception as e:
-        st.error(f"Error al generar la ruta: {e}")
-        return folium.Map(location=[1.287, -77.28], zoom_start=8)
+    mapa_ruta = folium.Map(location=origen, zoom_start=10)
+    folium.Marker(origen, popup="Finca de Origen", icon=folium.Icon(color="green")).add_to(mapa_ruta)
+    folium.Marker(destino, popup="Destino", icon=folium.Icon(color="orange")).add_to(mapa_ruta)
+    folium.PolyLine([origen, destino], color="blue", weight=2.5, opacity=1).add_to(mapa_ruta)
+    return mapa_ruta
 
 # Crear la aplicación Streamlit
 st.title("Plataforma de Producción y Comercialización de Café")
